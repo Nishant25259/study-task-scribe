@@ -6,13 +6,16 @@ import { BookCheck, Calendar, ListTodo, TrendingUp } from "lucide-react";
 
 interface StudyProgressProps {
   tasks: Task[];
+  taskHistory: Task[];
 }
 
-export function StudyProgress({ tasks }: StudyProgressProps) {
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(task => task.isCompleted).length;
+export function StudyProgress({ tasks, taskHistory }: StudyProgressProps) {
+  const activeTasks = tasks.length;
+  const completedTasks = taskHistory.length;
+  const totalTasks = activeTasks + completedTasks;
   const totalSessions = tasks.reduce((sum, task) => sum + task.totalSessions, 0);
-  const completedSessions = tasks.reduce((sum, task) => sum + task.completedSessions, 0);
+  const completedSessions = tasks.reduce((sum, task) => sum + task.completedSessions, 0) + 
+                           taskHistory.reduce((sum, task) => sum + task.totalSessions, 0);
   const overallProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   const sessionProgress = totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0;
 

@@ -1,5 +1,5 @@
 
-import { Book, BookCheck, Calendar, ListTodo } from "lucide-react";
+import { Book, BookCheck, Calendar, ListTodo, History } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -18,9 +18,10 @@ interface AppSidebarProps {
   activeCategory: string;
   setActiveCategory: (category: string) => void;
   tasks: Task[];
+  taskHistory: Task[];
 }
 
-export function AppSidebar({ activeCategory, setActiveCategory, tasks }: AppSidebarProps) {
+export function AppSidebar({ activeCategory, setActiveCategory, tasks, taskHistory }: AppSidebarProps) {
   const categories = [
     { name: "All", icon: ListTodo, count: tasks.length },
     { name: "Programming", icon: Book, count: tasks.filter(t => t.category === "Programming").length },
@@ -29,8 +30,10 @@ export function AppSidebar({ activeCategory, setActiveCategory, tasks }: AppSide
     { name: "Science", icon: BookCheck, count: tasks.filter(t => t.category === "Science").length },
   ];
 
-  const completedTasks = tasks.filter(t => t.isCompleted).length;
-  const totalSessions = tasks.reduce((sum, task) => sum + task.completedSessions, 0);
+  const activeTasks = tasks.length;
+  const completedTasks = taskHistory.length;
+  const totalSessions = tasks.reduce((sum, task) => sum + task.completedSessions, 0) + 
+                       taskHistory.reduce((sum, task) => sum + task.totalSessions, 0);
 
   return (
     <Sidebar className="border-r border-gray-200 bg-white/80 backdrop-blur-sm">
@@ -82,16 +85,16 @@ export function AppSidebar({ activeCategory, setActiveCategory, tasks }: AppSide
             <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg mx-3">
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Completed Tasks</span>
-                  <span className="font-semibold text-blue-600">{completedTasks}</span>
+                  <span className="text-sm text-gray-600">Active Tasks</span>
+                  <span className="font-semibold text-blue-600">{activeTasks}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Completed</span>
+                  <span className="font-semibold text-green-600">{completedTasks}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Study Sessions</span>
                   <span className="font-semibold text-purple-600">{totalSessions}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Active Tasks</span>
-                  <span className="font-semibold text-green-600">{tasks.length - completedTasks}</span>
                 </div>
               </div>
             </div>
