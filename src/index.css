@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -39,19 +40,12 @@ All colors MUST be HSL.
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -92,14 +86,73 @@ All colors MUST be HSL.
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  .neon {
+    --background: 249 22% 12%;
+    --foreground: 280 100% 85%;
+
+    --card: 252 30% 8%;
+    --card-foreground: 280 100% 90%;
+
+    --popover: 252 30% 8%;
+    --popover-foreground: 280 100% 90%;
+
+    --primary: 271 81% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 258 30% 20%;
+    --secondary-foreground: 280 100% 90%;
+
+    --muted: 258 30% 18%;
+    --muted-foreground: 280 20% 65%;
+
+    --accent: 258 30% 20%;
+    --accent-foreground: 280 100% 90%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 258 30% 25%;
+    --input: 258 30% 25%;
+    --ring: 271 81% 56%;
+
+    --sidebar-background: 252 30% 8%;
+    --sidebar-foreground: 280 100% 85%;
+    --sidebar-primary: 271 81% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 258 30% 18%;
+    --sidebar-accent-foreground: 280 100% 85%;
+    --sidebar-border: 258 30% 25%;
+    --sidebar-ring: 271 81% 56%;
+  }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border transition-colors duration-300;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
+
+  /* Smooth transitions for all theme changes */
+  html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Enhanced neon theme effects */
+  .neon .bg-gradient-to-r {
+    background: linear-gradient(135deg, hsl(271, 81%, 56%), hsl(225, 100%, 60%));
+  }
+
+  .neon .shadow-lg {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  }
+
+  .neon button:hover,
+  .neon .hover\:bg-blue-50:hover {
+    background-color: hsl(258, 30%, 25%);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
   }
 }

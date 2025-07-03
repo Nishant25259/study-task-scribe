@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -21,6 +21,26 @@ export function AppSettings() {
     weeklyGoal: [15], // Study sessions per week
   });
 
+  // Apply theme on component mount and when theme changes
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    // Remove all theme classes
+    root.classList.remove('dark', 'neon');
+    
+    // Add the appropriate theme class
+    if (settings.theme === 'dark') {
+      root.classList.add('dark');
+    } else if (settings.theme === 'neon') {
+      root.classList.add('neon');
+    }
+  }, [settings.theme]);
+
+  const handleThemeChange = (value: string) => {
+    setSettings({ ...settings, theme: value });
+    console.log("Theme changed to:", value);
+  };
+
   const handleSave = () => {
     // TODO: Implement actual save logic
     console.log("Saving settings:", settings);
@@ -41,7 +61,7 @@ export function AppSettings() {
             <Label htmlFor="theme">Theme</Label>
             <Select 
               value={settings.theme} 
-              onValueChange={(value) => setSettings({ ...settings, theme: value })}
+              onValueChange={handleThemeChange}
             >
               <SelectTrigger className="w-32">
                 <SelectValue />
@@ -49,7 +69,7 @@ export function AppSettings() {
               <SelectContent>
                 <SelectItem value="light">Light</SelectItem>
                 <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="system">System</SelectItem>
+                <SelectItem value="neon">Neon</SelectItem>
               </SelectContent>
             </Select>
           </div>

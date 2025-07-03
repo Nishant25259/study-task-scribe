@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -89,6 +90,12 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
+			},
+			transitionProperty: {
+				'colors': 'color, background-color, border-color, text-decoration-color, fill, stroke',
+			},
+			transitionDuration: {
+				'300': '300ms',
 			}
 		}
 	},
