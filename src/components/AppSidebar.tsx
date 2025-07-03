@@ -1,5 +1,4 @@
-
-import { Book, BookCheck, Calendar, ListTodo, History } from "lucide-react";
+import { Book, BookCheck, Calendar, ListTodo, History, User, Settings, LogOut, Bell } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -10,8 +9,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Task } from "@/pages/Index";
 
 interface AppSidebarProps {
@@ -34,6 +36,12 @@ export function AppSidebar({ activeCategory, setActiveCategory, tasks, taskHisto
   const completedTasks = taskHistory.length;
   const totalSessions = tasks.reduce((sum, task) => sum + task.completedSessions, 0) + 
                        taskHistory.reduce((sum, task) => sum + task.totalSessions, 0);
+
+  const profileMenuItems = [
+    { name: "Profile", icon: User },
+    { name: "Settings", icon: Settings },
+    { name: "Notifications", icon: Bell },
+  ];
 
   return (
     <Sidebar className="border-r border-gray-200 bg-white/80 backdrop-blur-sm">
@@ -101,6 +109,53 @@ export function AppSidebar({ activeCategory, setActiveCategory, tasks, taskHisto
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter className="p-4 border-t border-gray-100">
+        <div className="space-y-4">
+          {/* User Profile Section */}
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <Avatar className="w-10 h-10">
+              <AvatarImage src="" alt="User" />
+              <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                JS
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                John Student
+              </p>
+              <p className="text-xs text-gray-500 truncate">
+                john@example.com
+              </p>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Profile Menu Items */}
+          <SidebarMenu>
+            {profileMenuItems.map((item) => (
+              <SidebarMenuItem key={item.name}>
+                <SidebarMenuButton className="w-full hover:bg-gray-50">
+                  <item.icon className="w-4 h-4" />
+                  <span>{item.name}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+
+          <Separator />
+
+          {/* Logout Button */}
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }
