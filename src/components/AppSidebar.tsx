@@ -1,3 +1,4 @@
+
 import { Book, BookCheck, Calendar, ListTodo, History, User, Settings, LogOut, Bell } from "lucide-react";
 import {
   Sidebar,
@@ -14,6 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ProfileDrawer } from "./ProfileDrawer";
 import { Task } from "@/pages/Index";
 
 interface AppSidebarProps {
@@ -42,6 +44,11 @@ export function AppSidebar({ activeCategory, setActiveCategory, tasks, taskHisto
     { name: "Settings", icon: Settings },
     { name: "Notifications", icon: Bell },
   ];
+
+  const handleSignOut = () => {
+    // TODO: Implement actual sign out logic
+    console.log("Signing out...");
+  };
 
   return (
     <Sidebar className="border-r border-gray-200 bg-white/80 backdrop-blur-sm">
@@ -112,42 +119,63 @@ export function AppSidebar({ activeCategory, setActiveCategory, tasks, taskHisto
 
       <SidebarFooter className="p-4 border-t border-gray-100">
         <div className="space-y-4">
-          {/* User Profile Section */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-            <Avatar className="w-10 h-10">
-              <AvatarImage src="" alt="User" />
-              <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                JS
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                John Student
-              </p>
-              <p className="text-xs text-gray-500 truncate">
-                john@example.com
-              </p>
+          {/* User Profile Section - Now clickable */}
+          <ProfileDrawer>
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+              <Avatar className="w-10 h-10">
+                <AvatarImage src="" alt="User" />
+                <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                  JS
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  John Student
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  john@example.com
+                </p>
+              </div>
             </div>
-          </div>
+          </ProfileDrawer>
 
           <Separator />
 
-          {/* Profile Menu Items */}
+          {/* Quick Profile Menu Items */}
           <SidebarMenu>
-            {profileMenuItems.map((item) => (
-              <SidebarMenuItem key={item.name}>
+            <SidebarMenuItem>
+              <ProfileDrawer>
                 <SidebarMenuButton className="w-full hover:bg-gray-50">
-                  <item.icon className="w-4 h-4" />
-                  <span>{item.name}</span>
+                  <User className="w-4 h-4" />
+                  <span>Profile</span>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+              </ProfileDrawer>
+            </SidebarMenuItem>
+            
+            <SidebarMenuItem>
+              <ProfileDrawer>
+                <SidebarMenuButton className="w-full hover:bg-gray-50">
+                  <Settings className="w-4 h-4" />
+                  <span>Settings</span>
+                </SidebarMenuButton>
+              </ProfileDrawer>
+            </SidebarMenuItem>
+            
+            <SidebarMenuItem>
+              <ProfileDrawer>
+                <SidebarMenuButton className="w-full hover:bg-gray-50">
+                  <Bell className="w-4 h-4" />
+                  <span>Notifications</span>
+                </SidebarMenuButton>
+              </ProfileDrawer>
+            </SidebarMenuItem>
           </SidebarMenu>
 
           <Separator />
 
           {/* Logout Button */}
           <Button 
+            onClick={handleSignOut}
             variant="ghost" 
             className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
           >
