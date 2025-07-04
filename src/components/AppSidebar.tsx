@@ -39,12 +39,6 @@ export function AppSidebar({ activeCategory, setActiveCategory, tasks, taskHisto
   const totalSessions = tasks.reduce((sum, task) => sum + task.completedSessions, 0) + 
                        taskHistory.reduce((sum, task) => sum + task.totalSessions, 0);
 
-  const profileMenuItems = [
-    { name: "Profile", icon: User },
-    { name: "Settings", icon: Settings },
-    { name: "Notifications", icon: Bell },
-  ];
-
   const handleSignOut = () => {
     // TODO: Implement actual sign out logic
     console.log("Signing out...");
@@ -118,22 +112,19 @@ export function AppSidebar({ activeCategory, setActiveCategory, tasks, taskHisto
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-gray-100">
-        <div className="space-y-4">
-          {/* User Profile Section - Now clickable */}
+        <div className="space-y-3">
+          {/* Compact User Profile Section */}
           <ProfileDrawer>
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-              <Avatar className="w-10 h-10">
+            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+              <Avatar className="w-8 h-8">
                 <AvatarImage src="" alt="User" />
-                <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs">
                   JS
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
+                <p className="text-xs font-medium text-gray-900 truncate">
                   John Student
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  john@example.com
                 </p>
               </div>
             </div>
@@ -141,47 +132,35 @@ export function AppSidebar({ activeCategory, setActiveCategory, tasks, taskHisto
 
           <Separator />
 
-          {/* Quick Profile Menu Items */}
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <ProfileDrawer>
-                <SidebarMenuButton className="w-full hover:bg-gray-50">
-                  <User className="w-4 h-4" />
-                  <span>Profile</span>
-                </SidebarMenuButton>
-              </ProfileDrawer>
-            </SidebarMenuItem>
+          {/* Compact Icon-only Menu */}
+          <div className="flex items-center justify-between">
+            <ProfileDrawer>
+              <Button variant="ghost" size="sm" className="w-8 h-8 p-0 hover:bg-gray-100">
+                <User className="w-4 h-4" />
+              </Button>
+            </ProfileDrawer>
             
-            <SidebarMenuItem>
-              <ProfileDrawer>
-                <SidebarMenuButton className="w-full hover:bg-gray-50">
-                  <Settings className="w-4 h-4" />
-                  <span>Settings</span>
-                </SidebarMenuButton>
-              </ProfileDrawer>
-            </SidebarMenuItem>
+            <ProfileDrawer>
+              <Button variant="ghost" size="sm" className="w-8 h-8 p-0 hover:bg-gray-100">
+                <Settings className="w-4 h-4" />
+              </Button>
+            </ProfileDrawer>
             
-            <SidebarMenuItem>
-              <ProfileDrawer>
-                <SidebarMenuButton className="w-full hover:bg-gray-50">
-                  <Bell className="w-4 h-4" />
-                  <span>Notifications</span>
-                </SidebarMenuButton>
-              </ProfileDrawer>
-            </SidebarMenuItem>
-          </SidebarMenu>
+            <ProfileDrawer>
+              <Button variant="ghost" size="sm" className="w-8 h-8 p-0 hover:bg-gray-100">
+                <Bell className="w-4 h-4" />
+              </Button>
+            </ProfileDrawer>
 
-          <Separator />
-
-          {/* Logout Button */}
-          <Button 
-            onClick={handleSignOut}
-            variant="ghost" 
-            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
+            <Button 
+              onClick={handleSignOut}
+              variant="ghost" 
+              size="sm"
+              className="w-8 h-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </SidebarFooter>
     </Sidebar>
