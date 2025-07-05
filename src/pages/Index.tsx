@@ -17,6 +17,7 @@ export interface Task {
   progress: number;
   totalSessions: number;
   completedSessions: number;
+  sessions: boolean[]; // Track individual session completion
   createdAt: Date;
   isCompleted: boolean;
   completedAt?: Date;
@@ -32,6 +33,7 @@ const Index = () => {
       progress: 60,
       totalSessions: 10,
       completedSessions: 6,
+      sessions: [true, true, true, true, true, true, false, false, false, false],
       createdAt: new Date(),
       isCompleted: false,
     },
@@ -40,9 +42,10 @@ const Index = () => {
       title: "Mathematics Study",
       description: "Advanced calculus and linear algebra",
       category: "Mathematics",
-      progress: 30,
+      progress: 25,
       totalSessions: 8,
       completedSessions: 2,
+      sessions: [true, true, false, false, false, false, false, false],
       createdAt: new Date(),
       isCompleted: false,
     },
@@ -58,6 +61,7 @@ const Index = () => {
       ...newTask,
       id: Date.now().toString(),
       createdAt: new Date(),
+      sessions: Array(newTask.totalSessions).fill(false), // Initialize all sessions as incomplete
     };
     setTasks([...tasks, task]);
     setShowTaskForm(false);

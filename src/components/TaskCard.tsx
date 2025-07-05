@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { BookCheck, Calendar, Check, Plus, Trash2 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { BookCheck, Calendar, Check, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface TaskCardProps {
   task: Task;
@@ -16,35 +18,64 @@ interface TaskCardProps {
 
 export function TaskCard({ task, onUpdate, onDelete }: TaskCardProps) {
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const { toast } = useToast();
 
   const handleAddSession = () => {
     if (task.completedSessions < task.totalSessions) {
       setIsUpdating(true);
-      const newCompletedSessions = task.completedSessions + 1;
-      const newProgress = Math.round((newCompletedSessions / task.totalSessions) * 100);
-      const isCompleted = newCompletedSessions === task.totalSessions;
+      const nextIncompleteIndex = task.sessions.findIndex(session => !session);
+      if (nextIncompleteIndex !== -1) {
+        const newSessions = [...task.sessions];
+        newSessions[nextIncompleteIndex] = true;
+        const newCompletedSessions = newSessions.filter(Boolean).length;
+        const newProgress = Math.round((newCompletedSessions / task.totalSessions) * 100);
+        const isCompleted = newCompletedSessions === task.totalSessions;
 
-      onUpdate(task.id, {
-        completedSessions: newCompletedSessions,
-        progress: newProgress,
-        isCompleted,
-      });
+        onUpdate(task.id, {
+          sessions: newSessions,
+          completedSessions: newCompletedSessions,
+          progress: newProgress,
+          isCompleted,
+        });
 
-      toast({
-        title: "Session completed! 🎉",
-        description: `Progress: ${newProgress}%`,
-      });
+        toast({
+          title: "Session completed! 🎉",
+          description: `Progress: ${newProgress}%`,
+        });
+      }
 
       setTimeout(() => setIsUpdating(false), 500);
     }
   };
 
+  const handleSessionToggle = (sessionIndex: number) => {
+    const newSessions = [...task.sessions];
+    newSessions[sessionIndex] = !newSessions[sessionIndex];
+    const newCompletedSessions = newSessions.filter(Boolean).length;
+    const newProgress = Math.round((newCompletedSessions / task.totalSessions) * 100);
+    const isCompleted = newCompletedSessions === task.totalSessions;
+
+    onUpdate(task.id, {
+      sessions: newSessions,
+      completedSessions: newCompletedSessions,
+      progress: newProgress,
+      isCompleted,
+    });
+
+    toast({
+      title: newSessions[sessionIndex] ? "Session completed! ✅" : "Session unmarked",
+      description: `Progress: ${newProgress}%`,
+    });
+  };
+
   const handleMarkComplete = () => {
+    const allCompleteSessions = Array(task.totalSessions).fill(true);
     onUpdate(task.id, {
       isCompleted: true,
       progress: 100,
       completedSessions: task.totalSessions,
+      sessions: allCompleteSessions,
     });
 
     toast({
@@ -121,6 +152,36 @@ export function TaskCard({ task, onUpdate, onDelete }: TaskCardProps) {
             <span>{task.createdAt.toLocaleDateString()}</span>
           </div>
         </div>
+
+        <Collapsible open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="w-full justify-between p-2 h-8 text-sm">
+              <span>Session Details</span>
+              {isDetailsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-2">
+            <div className="grid grid-cols-5 gap-2 p-2">
+              {task.sessions.map((completed, index) => (
+                <Button
+                  key={index}
+                  variant={completed ? "default" : "outline"}
+                  size="sm"
+                  className={cn(
+                    "h-8 text-xs",
+                    completed 
+                      ? "bg-green-500 hover:bg-green-600 text-white" 
+                      : "hover:bg-gray-50"
+                  )}
+                  onClick={() => handleSessionToggle(index)}
+                  disabled={task.isCompleted}
+                >
+                  {index + 1}
+                </Button>
+              ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         <div className="flex gap-2 pt-2">
           {!task.isCompleted && (
