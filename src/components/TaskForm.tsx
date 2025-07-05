@@ -30,6 +30,7 @@ export function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
       ...formData,
       progress: 0,
       completedSessions: 0,
+      sessions: Array(formData.totalSessions).fill(false),
       isCompleted: false,
     });
   };
