@@ -8,13 +8,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 export function ProfileSettings() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: "John Student",
-    email: "john@example.com",
+    name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User",
+    email: user?.email || "",
     bio: "Passionate learner focused on programming and mathematics.",
     avatar: "",
     studyGoal: "Complete 5 programming courses this year",
