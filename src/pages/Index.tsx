@@ -1,13 +1,17 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TaskGrid } from "@/components/TaskGrid";
 import { TaskForm } from "@/components/TaskForm";
 import { StudyProgress } from "@/components/StudyProgress";
 import { TaskHistory } from "@/components/TaskHistory";
+import { AuthPage } from "@/components/AuthPage";
 import { Button } from "@/components/ui/button";
-import { Plus, History } from "lucide-react";
+import { Plus, History, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Task {
   id: string;
@@ -24,74 +28,228 @@ export interface Task {
 }
 
 const Index = () => {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: "1",
-      title: "React Fundamentals",
-      description: "Learn React basics, components, and state management",
-      category: "Programming",
-      progress: 60,
-      totalSessions: 10,
-      completedSessions: 6,
-      sessions: [true, true, true, true, true, true, false, false, false, false],
-      createdAt: new Date(),
-      isCompleted: false,
-    },
-    {
-      id: "2",
-      title: "Mathematics Study",
-      description: "Advanced calculus and linear algebra",
-      category: "Mathematics",
-      progress: 25,
-      totalSessions: 8,
-      completedSessions: 2,
-      sessions: [true, true, false, false, false, false, false, false],
-      createdAt: new Date(),
-      isCompleted: false,
-    },
-  ]);
-
+  const { user, loading, signOut } = useAuth();
+  const { toast } = useToast();
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [taskHistory, setTaskHistory] = useState<Task[]>([]);
   const [activeCategory, setActiveCategory] = useState("All");
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
-  const addTask = (newTask: Omit<Task, "id" | "createdAt">) => {
-    const task: Task = {
-      ...newTask,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      sessions: Array(newTask.totalSessions).fill(false), // Initialize all sessions as incomplete
-    };
-    setTasks([...tasks, task]);
-    setShowTaskForm(false);
+  // Load tasks from Supabase
+  useEffect(() => {
+    if (user) {
+      loadTasks();
+      loadCompletedTasks();
+    }
+  }, [user]);
+
+  const loadTasks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('is_completed', false)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      const formattedTasks = data.map(task => ({
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        category: task.category,
+        progress: task.progress,
+        totalSessions: task.total_sessions,
+        completedSessions: task.completed_sessions,
+        sessions: task.sessions as boolean[],
+        isCompleted: task.is_completed,
+        createdAt: new Date(task.created_at),
+        completedAt: task.completed_at ? new Date(task.completed_at) : undefined,
+      }));
+      
+      setTasks(formattedTasks);
+    } catch (error) {
+      toast({
+        title: "Error loading tasks",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const updateTask = (taskId: string, updates: Partial<Task>) => {
-    setTasks(tasks.map(task => {
-      if (task.id === taskId) {
-        const updatedTask = { ...task, ...updates };
-        
-        // If task is being completed, move it to history
-        if (updates.isCompleted && !task.isCompleted) {
-          const completedTask = { ...updatedTask, completedAt: new Date() };
-          setTaskHistory(prev => [completedTask, ...prev]);
-          return null; // Will be filtered out below
+  const loadCompletedTasks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('is_completed', true)
+        .order('completed_at', { ascending: false });
+
+      if (error) throw error;
+      
+      const formattedTasks = data.map(task => ({
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        category: task.category,
+        progress: task.progress,
+        totalSessions: task.total_sessions,
+        completedSessions: task.completed_sessions,
+        sessions: task.sessions as boolean[],
+        isCompleted: task.is_completed,
+        createdAt: new Date(task.created_at),
+        completedAt: task.completed_at ? new Date(task.completed_at) : undefined,
+      }));
+      
+      setTaskHistory(formattedTasks);
+    } catch (error) {
+      toast({
+        title: "Error loading completed tasks",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const addTask = async (newTask: Omit<Task, "id" | "createdAt">) => {
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert([{
+          user_id: user?.id,
+          title: newTask.title,
+          description: newTask.description,
+          category: newTask.category,
+          progress: newTask.progress,
+          total_sessions: newTask.totalSessions,
+          completed_sessions: newTask.completedSessions,
+          sessions: Array(newTask.totalSessions).fill(false),
+          is_completed: newTask.isCompleted,
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      const formattedTask = {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        progress: data.progress,
+        totalSessions: data.total_sessions,
+        completedSessions: data.completed_sessions,
+        sessions: data.sessions as boolean[],
+        isCompleted: data.is_completed,
+        createdAt: new Date(data.created_at),
+        completedAt: data.completed_at ? new Date(data.completed_at) : undefined,
+      };
+      
+      setTasks([formattedTask, ...tasks]);
+      setShowTaskForm(false);
+      
+      toast({
+        title: "Task created",
+        description: "Your task has been saved successfully!",
+      });
+    } catch (error) {
+      toast({
+        title: "Error creating task",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateTask = async (taskId: string, updates: Partial<Task>) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({
+          title: updates.title,
+          description: updates.description,
+          category: updates.category,
+          progress: updates.progress,
+          total_sessions: updates.totalSessions,
+          completed_sessions: updates.completedSessions,
+          sessions: updates.sessions,
+          is_completed: updates.isCompleted,
+          completed_at: updates.isCompleted ? new Date().toISOString() : null,
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      // Update local state
+      setTasks(tasks.map(task => {
+        if (task.id === taskId) {
+          const updatedTask = { ...task, ...updates };
+          
+          // If task is being completed, move it to history
+          if (updates.isCompleted && !task.isCompleted) {
+            const completedTask = { ...updatedTask, completedAt: new Date() };
+            setTaskHistory(prev => [completedTask, ...prev]);
+            return null; // Will be filtered out below
+          }
+          
+          return updatedTask;
         }
-        
-        return updatedTask;
-      }
-      return task;
-    }).filter(Boolean) as Task[]);
+        return task;
+      }).filter(Boolean) as Task[]);
+      
+      toast({
+        title: "Task updated",
+        description: "Your changes have been saved!",
+      });
+    } catch (error) {
+      toast({
+        title: "Error updating task",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const deleteTask = (taskId: string) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
+  const deleteTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId);
+
+      if (error) throw error;
+      
+      setTasks(tasks.filter(task => task.id !== taskId));
+      
+      toast({
+        title: "Task deleted",
+        description: "Task has been removed successfully!",
+      });
+    } catch (error) {
+      toast({
+        title: "Error deleting task",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const filteredTasks = activeCategory === "All" 
     ? tasks 
     : tasks.filter(task => task.category === activeCategory);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
 
   return (
     <SidebarProvider>
@@ -116,6 +274,15 @@ const Index = () => {
               </div>
               
               <div className="flex gap-2">
+                <Button 
+                  onClick={signOut}
+                  variant="outline"
+                  className="border-gray-300"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+                
                 <Button 
                   onClick={() => setShowHistory(!showHistory)}
                   variant="outline"
