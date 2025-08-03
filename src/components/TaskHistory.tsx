@@ -2,13 +2,15 @@
 import { Task } from "@/pages/Index";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookCheck, Calendar, Check, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { BookCheck, Calendar, Check, Trophy, Trash2 } from "lucide-react";
 
 interface TaskHistoryProps {
   tasks: Task[];
+  onDelete: (taskId: string) => void;
 }
 
-export function TaskHistory({ tasks }: TaskHistoryProps) {
+export function TaskHistory({ tasks, onDelete }: TaskHistoryProps) {
   if (tasks.length === 0) {
     return (
       <div className="text-center py-12">
@@ -54,6 +56,14 @@ export function TaskHistory({ tasks }: TaskHistoryProps) {
                     {task.description}
                   </p>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onDelete(task.id)}
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </CardHeader>
 

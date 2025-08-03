@@ -220,7 +220,9 @@ const Index = () => {
 
       if (error) throw error;
       
+      // Remove from both active tasks and task history
       setTasks(tasks.filter(task => task.id !== taskId));
+      setTaskHistory(taskHistory.filter(task => task.id !== taskId));
       
       toast({
         title: "Task deleted",
@@ -305,7 +307,7 @@ const Index = () => {
             <StudyProgress tasks={tasks} taskHistory={taskHistory} />
             
             {showHistory ? (
-              <TaskHistory tasks={taskHistory} />
+              <TaskHistory tasks={taskHistory} onDelete={deleteTask} />
             ) : (
               <div className="mb-6">
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
