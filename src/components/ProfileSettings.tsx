@@ -9,19 +9,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 export function ProfileSettings() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({
-    name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User",
-    email: user?.email || "",
+    name: "",
+    email: "",
     bio: "Passionate learner focused on programming and mathematics.",
     avatar: "",
     studyGoal: "Complete 5 programming courses this year",
     location: "San Francisco, CA"
   });
+
+  // Update profile when user data loads
+  useEffect(() => {
+    if (user) {
+      setProfile(prev => ({
+        ...prev,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0] || "User",
+        email: user.email || ""
+      }));
+    }
+  }, [user]);
 
   const handleSave = () => {
     // TODO: Implement actual save logic
